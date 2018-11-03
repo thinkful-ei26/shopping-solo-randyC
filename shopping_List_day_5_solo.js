@@ -2,10 +2,10 @@
 
 // Implement the following features which will require a more complex store object:
 
-//**  User can press a switch/checkbox to toggle between displaying all
+//** User can press a switch/checkbox to toggle between displaying all
 // items or displaying only items that are unchecked
 
-// User can type in a search term and the displayed list will be filtered
+//** User can type in a search term and the displayed list will be filtered
 // by item names only containing that search term
 
 // User can edit the title of an item
@@ -16,17 +16,20 @@ const STORE = {
   items:[
     {name: 'apples', checked: false},
     {name: 'oranges', checked: false},
+    {name: 'oranges', checked: false},
     {name: 'milk', checked: false},
     {name: 'bread', checked: false}],
-    hideItemsState: 'OFF'
-}
+  hideItemsState: 0,
+  showOnlySearchedState: 0,
+  searchName: 'pickles'
+};
 
 
 function generateItemElement(item, itemIndex, template) {
     
   return `
     <li class="js-item-index-element" data-item-index="${itemIndex}">
-      <span class="shopping-item js-shopping-item ${item.checked ? "shopping-item__checked" : ''}">${item.name}</span>
+      <span class="shopping-item js-shopping-item ${item.checked ? 'shopping-item__checked' : ''}">${item.name}</span>
       <div class="shopping-item-controls">
         <button class="shopping-item-toggle js-item-toggle">
             <span class="button-label">check</span>
@@ -39,35 +42,45 @@ function generateItemElement(item, itemIndex, template) {
 }
 
 
-function generateShoppingItemsString(shoppingList,hideItemSwitch) {
+function generateShoppingItemsString(shoppingList,hideItemSwitch,showOnlySearchedSwitch) {
 
-    console.log("Generating shopping list element");
+  console.log('Generating shopping list element');
     
-    console.log(hideItemSwitch);
+  console.log('search name -->>> ' + STORE.searchName);
 
-   if(hideItemSwitch === 'ON'){ 
+  //filter for search term item  STORE.searchName
+    
+  if(showOnlySearchedSwitch === 1){ 
+
+    const myThing = STORE.searchName;
         
-        //console.log('STORE.hideItemsOn = ' + test);
+    const searchedShoppingList = shoppingList.filter(shoppingList => shoppingList.name === myThing);
 
-        const filteredShoppingList = shoppingList.filter(shoppingList => shoppingList.checked === false);
+    const items = searchedShoppingList.map((item, index) => generateItemElement(item, index));
+    
+    console.log('the list: ' + searchedShoppingList);
 
-        const items = filteredShoppingList.map((item, index) => generateItemElement(item, index));
+    return items.join('');
+  } 
+    
 
-        console.log(items.join(""));
+  //filter for hide checked items
+  else if(showOnlySearchedSwitch === 0 && hideItemSwitch === 1){ 
+         
+    const filteredShoppingList = shoppingList.filter(shoppingList => shoppingList.checked === false);
 
-        return items.join("");
-   } 
+    const items = filteredShoppingList.map((item, index) => generateItemElement(item, index));
 
-   if(hideItemSwitch === 'OFF'){  
-        
-        //console.log('STORE.hideItemsOn = ' + test);
+    return items.join('');
+  } 
 
-        const items = shoppingList.map((item, index) => generateItemElement(item, index));
+  //NO filter
+  else if(showOnlySearchedSwitch === 0 && hideItemSwitch === 0){  
+         
+    const items = shoppingList.map((item, index) => generateItemElement(item, index));
 
-        console.log(items.join(""));
-
-        return items.join("");
-    }   
+    return items.join('');
+  }   
 
     
    
@@ -78,7 +91,11 @@ function renderShoppingList() {
   // render the shopping list in the DOM
   console.log('`renderShoppingList` ran');
  
-  const shoppingListItemsString = generateShoppingItemsString(STORE.items,STORE.hideItemsState);
+
+  const shoppingListItemsString = generateShoppingItemsString(
+    STORE.items,
+    STORE.hideItemsState,
+    STORE.showOnlySearchedState);
 
   // insert that HTML into the DOM
   $('.js-shopping-list').html(shoppingListItemsString);
@@ -102,8 +119,72 @@ function handleNewItemSubmit() {
   });
 }
 
+
+function handleSearchItemSubmit() {
+  $('#js-shopping-list-search-form').submit(function(event) {
+
+    event.preventDefault();
+
+    console.log('`handleSearchItemSubmit` ran');
+
+    const searchItemName = $('.js-shopping-list-search-entry').val();
+
+    console.log('handleSearchItemSubmit--> search item name: ' + searchItemName);
+ 
+    const testResults = searchTheList(searchItemName);
+
+     
+      
+    if(testResults !== undefined){
+
+      STORE.searchName = searchItemName;
+
+      STORE.showOnlySearchedState = 1;//SHOW ONLY SEARCH MATCHED
+
+    }
+    else{
+        
+      STORE.showOnlySearchedState = 0;//RESET
+
+      $('.js-shopping-list-search-entry').val();
+
+      $('.js-shopping-list-search-entry').val('No Results Found');
+ 
+    }
+
+    renderShoppingList();
+
+  });
+}
+
+
+
+
+//sets view based on searchItemName
+function searchTheList(searchForThis){
+
+  //search through STORE object names
+  
+ 
+ 
+  const searchCheck = STORE.items.find(item => item.name === searchForThis);  
+  
+  if(searchCheck !== undefined){
+ 
+    return searchCheck;
+
+  }
+  else{ 
+
+    return;
+
+  }
+
+}
+
+
 function toggleCheckedForListItem(itemIndex) {
-  console.log("Toggling checked property for item at index " + itemIndex);
+  console.log('Toggling checked property for item at index ' + itemIndex);
   STORE.items[itemIndex].checked = !STORE.items[itemIndex].checked;
 }
 
@@ -116,7 +197,7 @@ function getItemIndexFromElement(item) {
 }
 
 function handleItemCheckClicked() {
-  $('.js-shopping-list').on('click', `.js-item-toggle`, event => {
+  $('.js-shopping-list').on('click', '.js-item-toggle', event => {
     console.log('`handleItemCheckClicked` ran');
     const itemIndex = getItemIndexFromElement(event.currentTarget);
     toggleCheckedForListItem(itemIndex);
@@ -126,7 +207,7 @@ function handleItemCheckClicked() {
 
 // name says it all. responsible for deleting a list item.
 function deleteListItem(itemIndex) {
-  console.log(`Deleting item at index  ${itemIndex} from shopping list`)
+  console.log(`Deleting item at index  ${itemIndex} from shopping list`);
 
   // as with `addItemToShoppingLIst`, this function also has the side effect of
   // mutating the global STORE value.
@@ -155,29 +236,26 @@ function handleDeleteItemClicked() {
  
 function handleItemCheckHideClicked() { 
  
-        $('input[type="checkbox"]').change(function(event){
+  $('input[type="checkbox"]').change(function(event){
 
-            console.log($(this). prop("checked"));
+    console.log($(this). prop('checked'));
 
-            if($(this). prop('checked') === true){
-                //alert("Checkbox is checked." );
+    if($(this). prop('checked') === true){
+      //alert("Checkbox is checked." );
 
-                STORE.hideItemsState = 'ON';//HIDE THE CHECKED ONES
+      STORE.hideItemsState = 1;//HIDE THE CHECKED ONES
+ 
+    }
+    else{
+      //alert("Checkbox is unchecked." );
 
-                 
-
-            }
-            else{
-                //alert("Checkbox is unchecked." );
-
-                STORE.hideItemsState = 'OFF';//SHOW EVERYTHING
-
+      STORE.hideItemsState = 0;//SHOW EVERYTHING
                 
-            }
+    }
             
-            renderShoppingList();
+    renderShoppingList();
 
-        });
+  });
  
 
 }
@@ -190,6 +268,7 @@ function handleShoppingList() {
 
   renderShoppingList();
   handleNewItemSubmit();
+  handleSearchItemSubmit();
   handleItemCheckClicked();
   handleDeleteItemClicked();
   handleItemCheckHideClicked();

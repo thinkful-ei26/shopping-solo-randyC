@@ -11,12 +11,19 @@
 <body>
     <div class="container">
         <h1>Shopping List</h1>
+
         <form id="js-shopping-list-form">
-            <label for="shopping-list-entry">Add an item</label>
+            <label for="shopping-list-entry">Add item</label>
             <input type="text" name="shopping-list-entry" class="js-shopping-list-entry" placeholder="e.g., broccoli">
-            <button type="submit">Add item</button>
+            <button type="submit">Add item to list</button>
+        </form>
+        <br>
+        <form id="js-shopping-list-search-form"> 
+            <label for="shopping-list-search-entry">Search for item</label>
+            <input type="text" name="shopping-list-search-entry" class="js-shopping-list-search-entry" placeholder="enter item to search for">
+            <button type="submit">Search list for item</button> 
             <br><br>
-            <input type="checkbox" name="hide check box" value="checked" placeholder="checked"> Hide Checked Items<br>
+            <input type="checkbox" name="hide check box" value="" unchecked> Hide Checked Items<br>
         </form>
          
         <ul class="shopping-list js-shopping-list">
