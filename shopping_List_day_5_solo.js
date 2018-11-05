@@ -1,5 +1,7 @@
 'use strict';
 
+/*eslint-env jquery*/
+
 // Implement the following features which will require a more complex store object:
 
 //** User can press a switch/checkbox to toggle between displaying all
@@ -14,33 +16,72 @@
  
 const STORE = {
   items:[
-    {name: 'apples', checked: false},
-    {name: 'oranges', checked: false},
-    {name: 'oranges', checked: false},
-    {name: 'milk', checked: false},
-    {name: 'bread', checked: false}],
+    {name: 'item_0', checked: false},
+    {name: 'item_1', checked: false}
+  ],
   hideItemsState: 0,
   showOnlySearchedState: 0,
-  searchName: 'pickles'
+  searchName: ''
 };
 
+//Correlate the STORE to the itemIndex...
+let tracker = 0;
 
-function generateItemElement(item, itemIndex, template) {
+//itemIndex needs to refer to a specific object
+
+function generateItemElement(item, itemIndex) {
+   
+
+  //template for edit item name view
+
+
+  //template for normal item view
+  console.log(`this --> `);
+
+  //re-name version
+  if(item.name === ' ' || item.name === '' || item.name === undefined){
+   
+  return `
     
+  <li class="js-item-index-element" data-item-index="${itemIndex}">
+  <span class="shopping-item js-shopping-item">${item.name}</span>
+    <div class="shopping-item-controls">
+        <input type="text" name="shopping-list-entry" class="js-rename-item-entry" placeholder="New name">
+        <button class="shopping-item-rename-finalize js-item-rename-finalize">
+        <span class="button-label">commit changes</span>
+        </button>
+    </div>
+    <br>
+    </li>
+    `;
+
+  }
+
+
+  //regular version
+  if(item.name !== '' && item.name !== ' '){
+   
   return `
     <li class="js-item-index-element" data-item-index="${itemIndex}">
       <span class="shopping-item js-shopping-item ${item.checked ? 'shopping-item__checked' : ''}">${item.name}</span>
       <div class="shopping-item-controls">
         <button class="shopping-item-toggle js-item-toggle">
-            <span class="button-label">check</span>
+            <span class="button-label">${item.checked ? 'uncheck item' : 'check item'}</span>
         </button>
         <button class="shopping-item-delete js-item-delete">
-            <span class="button-label">delete</span>
+            <span class="button-label">delete item</span>
+        </button>
+        <button class="shopping-item-rename js-item-rename">
+            <span class="button-label">rename item</span>
         </button>
       </div>
     </li>`;
+  }
+
+  
 }
 
+ 
 
 function generateShoppingItemsString(shoppingList,hideItemSwitch,showOnlySearchedSwitch) {
 
@@ -48,8 +89,7 @@ function generateShoppingItemsString(shoppingList,hideItemSwitch,showOnlySearche
     
   console.log('search name -->>> ' + STORE.searchName);
 
-  //filter for search term item  STORE.searchName
-    
+  //FILTER for search term item  STORE.searchName  
   if(showOnlySearchedSwitch === 1){ 
 
     const myThing = STORE.searchName;
@@ -62,9 +102,8 @@ function generateShoppingItemsString(shoppingList,hideItemSwitch,showOnlySearche
 
     return items.join('');
   } 
-    
 
-  //filter for hide checked items
+  //FILTER for hide checked items state 
   else if(showOnlySearchedSwitch === 0 && hideItemSwitch === 1){ 
          
     const filteredShoppingList = shoppingList.filter(shoppingList => shoppingList.checked === false);
@@ -74,7 +113,7 @@ function generateShoppingItemsString(shoppingList,hideItemSwitch,showOnlySearche
     return items.join('');
   } 
 
-  //NO filter
+  //NO FILTER ...
   else if(showOnlySearchedSwitch === 0 && hideItemSwitch === 0){  
          
     const items = shoppingList.map((item, index) => generateItemElement(item, index));
@@ -108,6 +147,7 @@ function addItemToShoppingList(itemName) {
   STORE.items.push({name: itemName, checked: false});
 }
 
+
 function handleNewItemSubmit() {
   $('#js-shopping-list-form').submit(function(event) {
     event.preventDefault();
@@ -119,22 +159,57 @@ function handleNewItemSubmit() {
   });
 }
 
+ 
+
+  /*
+  $('#js-rename-form').submit(function(event) {
+    event.preventDefault();
+ 
+    console.log('`handleItemNameChangeSubmit` ran');
+
+    
+    //GET current item index
+    const itemIndex = getItemIndexFromElement(event.currentTarget);
+
+    const itemNameChanged = $('.js-shopping-list-rename-entry').val();
+
+    console.log('>>>>>> ',itemNameChanged);
+
+    const currentList = STORE.items;
+   
+    if(STORE.hideItemsState === 0){
+         
+      const currentItemName = currentList[itemIndex];
+      const currentItemIndex = itemIndex;
+      
+      currentList[itemIndex].name = itemNameChanged;
+        
+      renderShoppingList();
+  
+    }
+ 
+  });*/
+
+
+
+//}
+ 
+ 
+
 
 function handleSearchItemSubmit() {
   $('#js-shopping-list-search-form').submit(function(event) {
 
     event.preventDefault();
 
-    console.log('`handleSearchItemSubmit` ran');
+    //console.log('`handleSearchItemSubmit` ran');
 
     const searchItemName = $('.js-shopping-list-search-entry').val();
 
-    console.log('handleSearchItemSubmit--> search item name: ' + searchItemName);
+    //console.log('handleSearchItemSubmit--> search item name: ' + searchItemName);
  
     const testResults = searchTheList(searchItemName);
-
-     
-      
+ 
     if(testResults !== undefined){
 
       STORE.searchName = searchItemName;
@@ -152,6 +227,10 @@ function handleSearchItemSubmit() {
  
     }
 
+    //itemIndex needs to be adjusted?
+
+
+     
     renderShoppingList();
 
   });
@@ -164,9 +243,7 @@ function handleSearchItemSubmit() {
 function searchTheList(searchForThis){
 
   //search through STORE object names
-  
- 
- 
+   
   const searchCheck = STORE.items.find(item => item.name === searchForThis);  
   
   if(searchCheck !== undefined){
@@ -184,11 +261,11 @@ function searchTheList(searchForThis){
 
 
 function toggleCheckedForListItem(itemIndex) {
-  console.log('Toggling checked property for item at index ' + itemIndex);
+  console.log('>>>>>>>>>. Toggling checked property for item at index >>>> itemIndex = ' + itemIndex);
   STORE.items[itemIndex].checked = !STORE.items[itemIndex].checked;
 }
 
-
+//this gets itemIndex
 function getItemIndexFromElement(item) {
   const itemIndexString = $(item)
     .closest('.js-item-index-element')
@@ -196,14 +273,109 @@ function getItemIndexFromElement(item) {
   return parseInt(itemIndexString, 10);
 }
 
+//item check button clicked
 function handleItemCheckClicked() {
   $('.js-shopping-list').on('click', '.js-item-toggle', event => {
-    console.log('`handleItemCheckClicked` ran');
+    
+    console.log('handleItemCheckClicked` ran');
+
+    //change text on button to say clcik to uncheck
+
     const itemIndex = getItemIndexFromElement(event.currentTarget);
+
     toggleCheckedForListItem(itemIndex);
     renderShoppingList();
   });
 }
+
+//item rename button clicked
+function handleItemRenameClicked() {
+  $('.js-shopping-list').on('click', '.js-item-rename', event => {
+    
+    console.log('`**** handleItemRenameClicked` ran');
+    
+    //GET current item index
+    const itemIndex = getItemIndexFromElement(event.currentTarget);
+
+    const currentList = STORE.items;
+  
+    //console.log('HEY Object Values---->>>>',currentList[itemIndex].name);
+ 
+    //if STORE.hideItemsState === 0 then the itemIndex is a direct corrrelation to object posiiton
+    if(STORE.hideItemsState === 0){
+         
+      const currentItemName = currentList[itemIndex];
+      const currentItemIndex = itemIndex;
+      
+      currentList[itemIndex].name = '';
+        
+      renderShoppingList();
+  
+    }
+ 
+    //HIDDEN STATE compensation 
+    //make an array that has just the stuff that is visible
+    //const lookAtShoppingList = currentList.filter(currentList => currentList.checked === false && STORE.hideItemsState === 1);
+    if(STORE.hideItemsState === 1000){
+
+      const currentList = STORE.items;
+
+      //make filtered array
+      const filteredStore = currentList.filter(currentList => currentList.checked === false);
+ 
+      const currentItemName = currentList[itemIndex];
+       
+      
+      filteredStore[itemIndex] = "";
+
+      renderShoppingList();
+  
+    }
+ 
+  
+  });
+}
+
+//item rename finalize
+function handleItemRenameFinalizeClicked() {
+  $('.js-shopping-list').on('click', '.js-item-rename-finalize', event => {
+    
+    console.log('`**** handleItemRenameFINALIZE-Clicked` ran');
+    
+        //GET current item index
+        const itemIndex = getItemIndexFromElement(event.currentTarget);
+
+        const itemNameChanged = $('.js-rename-item-entry').val();
+    
+        console.log('>>>>>> ',$('.js-rename-item-entry').val());
+    
+        const currentList = STORE.items;
+       
+        if(STORE.hideItemsState === 0){
+           
+          const currentItemName = currentList[itemIndex];
+          const currentItemIndex = itemIndex;
+            
+          currentList[itemIndex].name = itemNameChanged;
+            
+          renderShoppingList();
+      
+        }  
+ 
+  
+  });
+}
+
+
+
+
+//compensates for hidden state
+function getItemIndexConversion(value){
+
+  
+
+}
+
 
 // name says it all. responsible for deleting a list item.
 function deleteListItem(itemIndex) {
@@ -252,7 +424,7 @@ function handleItemCheckHideClicked() {
       STORE.hideItemsState = 0;//SHOW EVERYTHING
                 
     }
-            
+     
     renderShoppingList();
 
   });
@@ -272,6 +444,8 @@ function handleShoppingList() {
   handleItemCheckClicked();
   handleDeleteItemClicked();
   handleItemCheckHideClicked();
+  handleItemRenameClicked();
+  handleItemRenameFinalizeClicked();
  
 }
 
