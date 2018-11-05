@@ -13,7 +13,6 @@
 // User can edit the title of an item
  
  
- 
 const STORE = {
   items:[
     {name: 'item_0', checked: false},
@@ -24,21 +23,10 @@ const STORE = {
   searchName: ''
 };
 
-//Correlate the STORE to the itemIndex...
-let tracker = 0;
-
-//itemIndex needs to refer to a specific object
 
 function generateItemElement(item, itemIndex) {
-   
-
-  //template for edit item name view
-
-
-  //template for normal item view
-  console.log(`this --> `);
-
-  //re-name version
+  
+  //re-name version template
   if(item.name === ' ' || item.name === '' || item.name === undefined){
    
   return `
@@ -58,7 +46,7 @@ function generateItemElement(item, itemIndex) {
   }
 
 
-  //regular version
+  //regular template
   if(item.name !== '' && item.name !== ' '){
    
   return `
@@ -158,44 +146,7 @@ function handleNewItemSubmit() {
     renderShoppingList();
   });
 }
-
  
-
-  /*
-  $('#js-rename-form').submit(function(event) {
-    event.preventDefault();
- 
-    console.log('`handleItemNameChangeSubmit` ran');
-
-    
-    //GET current item index
-    const itemIndex = getItemIndexFromElement(event.currentTarget);
-
-    const itemNameChanged = $('.js-shopping-list-rename-entry').val();
-
-    console.log('>>>>>> ',itemNameChanged);
-
-    const currentList = STORE.items;
-   
-    if(STORE.hideItemsState === 0){
-         
-      const currentItemName = currentList[itemIndex];
-      const currentItemIndex = itemIndex;
-      
-      currentList[itemIndex].name = itemNameChanged;
-        
-      renderShoppingList();
-  
-    }
- 
-  });*/
-
-
-
-//}
- 
- 
-
 
 function handleSearchItemSubmit() {
   $('#js-shopping-list-search-form').submit(function(event) {
@@ -298,15 +249,10 @@ function handleItemRenameClicked() {
     const itemIndex = getItemIndexFromElement(event.currentTarget);
 
     const currentList = STORE.items;
-  
-    //console.log('HEY Object Values---->>>>',currentList[itemIndex].name);
- 
+   
     //if STORE.hideItemsState === 0 then the itemIndex is a direct corrrelation to object posiiton
     if(STORE.hideItemsState === 0){
-         
-      const currentItemName = currentList[itemIndex];
-      const currentItemIndex = itemIndex;
-      
+       
       currentList[itemIndex].name = '';
         
       renderShoppingList();
@@ -314,24 +260,22 @@ function handleItemRenameClicked() {
     }
  
     //HIDDEN STATE compensation 
-    //make an array that has just the stuff that is visible
-    //const lookAtShoppingList = currentList.filter(currentList => currentList.checked === false && STORE.hideItemsState === 1);
-    if(STORE.hideItemsState === 1000){
-
-      const currentList = STORE.items;
-
-      //make filtered array
-      const filteredStore = currentList.filter(currentList => currentList.checked === false);
+  
+    //
+     
+    if(STORE.hideItemsState === 1){
  
-      const currentItemName = currentList[itemIndex];
-       
-      
+      //make filtered array to handle hidden stuff
+      const filteredStore = currentList.filter(currentList => currentList.checked === false);
+
+      console.log('>>> ',filteredStore);
+  
       filteredStore[itemIndex] = "";
 
       renderShoppingList();
   
     }
- 
+     
   
   });
 }
